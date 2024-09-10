@@ -14,7 +14,10 @@ from scrapy import Spider, Request
         2- 
     
 '''
-
+'''
+    To get the name of parts: //div[@class="listing-text-row-moreinfo-truck"]
+    To get the prices of parts: //td[contains(@id,"listingtd")]/span/span/span/text()
+'''
 
 
 class SpRockautoSpider(Spider):
@@ -24,11 +27,30 @@ class SpRockautoSpider(Spider):
 
     def parse(self, response):
         models = response.xpath('//div[@class="ranavnode"]//td[@class="nlabel"]/a')
-        for model in models:
-            yield {
-                "link": model.xpath("@href").get(),
-                "txt": model.xpath("text()").get(),
-                "id": model.xpath("@id").get(),
-            }
+        # for model in models:
+        #     yield {
+        #         "link": model.xpath("@href").get(),
+        #         "txt": model.xpath("text()").get(),
+        #         "id": model.xpath("@id").get(),
+        #     }
         
-        yield Request(f'https://www.rockauto.com{models[0].xpath("@href").get()}', self.parse)
+        
+        # counter += 1
+        # yield Request(f'https://www.rockauto.com{models[counter].xpath("@href").get()}', self.parse)
+        
+        yield Request(f'https://www.rockauto.com/en/catalog/acura,2024,integra,1.5l+l4+turbocharged,3454229,belt+drive,belt,8900', self.parse)
+        
+        
+        items = response.xpath('//tbody[contains(@id, "listingcontainer")]/tr[1]')
+        print(len(items))
+        for item in items:
+            yield {
+                "part_manufacturer": item.xpath('//div[@class="listing-text-row-moreinfo-truck"]/span[1]/text()').get(),
+                "part_number": item.xpath('//div[@class="listing-text-row-moreinfo-truck"]/span[2]/text()').get(),
+                "info_link": item.xpath('//div[@class="listing-text-row-moreinfo-truck"]/a/@href').get(),
+                "price": item.xpath('//td[contains(@id,"listingtd")]/span/span/span[contains(@id, "dprice")]/text()').get(),
+            }
+
+
+        # yield Request(f'https://www.rockauto.com/en/catalog/acura', self.parse)
+        # yield Request(f'https://www.rockauto.com/en/catalog/ac', self.parse)
