@@ -1,3 +1,9 @@
-ativa.bat
-env
 .env
+/env
+ativa.bat
+filmes.json
+*.jsonl
+*.json
+*.csv
+*/__pycache__/*
+*/spiders/__pycache__/*

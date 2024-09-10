@@ -1,4 +1,4 @@
-import scrapy
+from scrapy import Spider, Request
 
 '''
     1- //a[contains(@class, "navlabellink nvoffset")]
@@ -17,10 +17,18 @@ import scrapy
 
 
 
-class SpRockautoSpider(scrapy.Spider):
+class SpRockautoSpider(Spider):
     name = "sp_rockauto"
     # allowed_domains = ["www.rockauto.com"]
     start_urls = ["https://www.rockauto.com"]
 
     def parse(self, response):
-        pass
+        models = response.xpath('//div[@class="ranavnode"]//td[@class="nlabel"]/a')
+        for model in models:
+            yield {
+                "link": model.xpath("@href").get(),
+                "txt": model.xpath("text()").get(),
+                "id": model.xpath("@id").get(),
+            }
+        
+        yield Request(f'https://www.rockauto.com{models[0].xpath("@href").get()}', self.parse)
